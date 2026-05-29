@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#0f0f0f"/>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
-  
+
   <!-- Tailwind CSS via CDN for utility classes -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -29,52 +29,45 @@
             'xl': '16px',
             '2xl': '20px',
             'full': '9999px'
+          },
+          boxShadow: {
+            'card': '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
+            'glow': '0 0 20px rgba(99, 102, 241, 0.3)'
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.3s ease-out',
+            'slide-up': 'slideUp 0.4s ease-out',
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' }
+            }
           }
         }
       }
     }
   </script>
-  
-  <!-- Firebase SDK (Compat version for CDN usage) -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  
-  <!-- 🔐 External Config - Generated from environment variables or GitHub Secrets -->
-  <!-- For local dev: run `node generate-config.js` after setting env vars -->
-  <!-- For production: GitHub Actions will generate this automatically -->
-  <script src="config.js" onerror="handleConfigError()"></script>
-  
-  <!-- Fallback config handler if config.js fails to load -->
-  <script>
-    function handleConfigError() {
-      console.warn('⚠️ config.js tidak ditemukan atau gagal dimuat.');
-      console.warn('💡 Untuk development lokal, jalankan: node generate-config.js');
-      console.warn('💡 Pastikan environment variables sudah diset atau buat file .env');
-      
-      // Set demo mode flag
-      window.FIREBASE_CONFIG = null;
-    }
-  </script>
-  
+
   <!-- Custom CSS -->
   <link rel="stylesheet" href="style.css"/>
-  
+
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📖</text></svg>">
-  
+
   <!-- Preconnect for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body class="bg-bg-dark text-text-main min-h-screen">
-  
+
   <!-- Skip Link for Accessibility -->
   <a href="#mainContent" class="skip-link">Langsung ke konten</a>
-  
-  <!-- Config Warning Banner (shown if config.js missing) -->
-  <div id="configWarning" class="config-warning hidden">
-    🔐 <span>Firebase config belum disetup! <a href="https://github.com/username/ceritaku-platform#-setup-firebase-configuration" target="_blank">Lihat panduan</a></span>
-  </div>
 
   <!-- Header -->
   <header class="header" role="banner">
@@ -83,7 +76,7 @@
         <div class="logo-icon" aria-hidden="true">C</div>
         <span>CeritaKu</span>
       </a>
-      
+
       <nav class="nav-actions" role="navigation" aria-label="Navigasi utama">
         <button id="searchBtn" class="icon-btn" title="Cari artikel" aria-label="Cari artikel">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -91,11 +84,6 @@
             <path d="m21 21-4.35-4.35"/>
           </svg>
         </button>
-        
-        <div id="authSection">
-          <a href="login.html" id="loginBtn" class="btn btn-outline" aria-label="Masuk ke akun">Masuk</a>
-          <button id="logoutBtn" class="btn btn-outline hidden" aria-label="Keluar dari akun">Keluar</button>
-        </div>
       </nav>
     </div>
   </header>
@@ -103,24 +91,9 @@
   <!-- Main Content -->
   <main id="mainContent" class="container" role="main">
     <div class="feed-container">
-      
+
       <!-- Article Feed Section -->
       <section class="feed-section" aria-label="Daftar artikel">
-        
-        <!-- Create Post CTA (visible for logged in users) -->
-        <div id="createPostCTA" class="card mb-4 hidden">
-          <div class="flex items-center gap-3">
-            <img id="userAvatar" src="https://ui-avatars.com/api/?name=User&background=333&color=fff" 
-                 alt="Avatar pengguna" class="w-10 h-10 rounded-full" loading="lazy">
-            <input type="text" id="quickPostInput" placeholder="Bagikan cerita menarikmu..." 
-                   class="input-field flex-1" readonly 
-                   onclick="window.location.href='login.html'"
-                   aria-label="Input cepat untuk posting">
-            <button class="btn btn-primary" onclick="window.location.href='login.html'" aria-label="Buat postingan baru">
-              Posting
-            </button>
-          </div>
-        </div>
 
         <!-- Loading State -->
         <div id="loadingFeed" class="loading" role="status" aria-live="polite">
@@ -128,96 +101,66 @@
           <span>Memuat cerita...</span>
         </div>
 
-        <!-- Articles Container -->
-        <div id="articlesContainer" class="flex flex-col gap-4" aria-live="polite">
-          <!-- Articles will be dynamically injected here by JavaScript -->
-        </div>
-
         <!-- Empty State -->
         <div id="emptyState" class="empty-state hidden" role="status">
-          <span class="empty-state-icon" aria-hidden="true">📭</span>
-          <p class="empty-state-title">Belum ada cerita yang dipublikasikan</p>
-          <p class="empty-state-text">Jadilah yang pertama berbagi cerita menarik!</p>
-          <a href="login.html" class="btn btn-primary mt-4">Mulai Menulis</a>
+          <div class="empty-state-icon" aria-hidden="true">📝</div>
+          <h2 class="empty-state-title">Belum ada cerita</h2>
+          <p class="empty-state-description">Jadilah yang pertama menulis cerita menarik!</p>
         </div>
-        
+
+        <!-- Articles Container -->
+        <div id="articlesContainer" class="articles-grid hidden" role="feed" aria-label="Daftar artikel">
+          <!-- Articles will be dynamically inserted here -->
+        </div>
+
       </section>
 
       <!-- Sidebar -->
-      <aside class="sidebar" role="complementary" aria-label="Sidebar">
+      <aside class="sidebar" aria-label="Sidebar">
         
+        <!-- Categories -->
+        <div class="card mb-4">
+          <h3 class="card-title mb-3">Kategori</h3>
+          <div class="category-tags" role="group" aria-label="Filter kategori">
+            <button class="tag active" data-category="all" aria-pressed="true" role="radio">Semua</button>
+            <button class="tag" data-category="tutorial" aria-pressed="false" role="radio">Tutorial</button>
+            <button class="tag" data-category="berita" aria-pressed="false" role="radio">Berita</button>
+            <button class="tag" data-category="lifestyle" aria-pressed="false" role="radio">Lifestyle</button>
+            <button class="tag" data-category="opini" aria-pressed="false" role="radio">Opini</button>
+            <button class="tag" data-category="lainnya" aria-pressed="false" role="radio">Lainnya</button>
+          </div>
+        </div>
+
         <!-- Trending Articles -->
-        <div class="sidebar-card">
-          <h3 class="sidebar-title">🔥 Trending</h3>
-          <div class="trending-list" id="trendingList" role="list">
-            <!-- Trending items will be injected by JavaScript -->
-            <div class="loading" style="padding: 0.5rem 0;">
-              <div class="spinner" style="width: 16px; height: 16px; border-width: 2px;"></div>
-            </div>
+        <div class="card">
+          <h3 class="card-title mb-3">🔥 Trending</h3>
+          <div id="trendingList" class="trending-list" role="list" aria-label="Artikel trending">
+            <p class="text-text-muted text-sm">Memuat trending...</p>
           </div>
         </div>
 
-        <!-- Category Filters -->
-        <div class="sidebar-card">
-          <h3 class="sidebar-title">📂 Kategori</h3>
-          <div class="flex flex-wrap gap-2" role="group" aria-label="Filter kategori">
-            <button class="tag active cursor-pointer" data-category="all" aria-pressed="true">Semua</button>
-            <button class="tag cursor-pointer" data-category="tutorial" aria-pressed="false">Tutorial</button>
-            <button class="tag cursor-pointer" data-category="berita" aria-pressed="false">Berita</button>
-            <button class="tag cursor-pointer" data-category="lifestyle" aria-pressed="false">Lifestyle</button>
-            <button class="tag cursor-pointer" data-category="opini" aria-pressed="false">Opini</button>
-          </div>
-        </div>
-
-        <!-- About Section -->
-        <div class="sidebar-card">
-          <h3 class="sidebar-title">ℹ️ Tentang</h3>
-          <p class="text-text-muted text-sm">
-            CeritaKu adalah platform statis untuk membaca dan berbagi cerita. 
-            Dibuat dengan ❤️ menggunakan GitHub Pages.
-          </p>
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" 
-             class="text-primary text-sm mt-2 inline-block hover:underline">
-            Lihat di GitHub →
-          </a>
-        </div>
-        
       </aside>
-      
+
     </div>
   </main>
 
   <!-- Footer -->
-  <footer class="border-t border-border-dark py-6 mt-8" role="contentinfo">
-    <div class="container text-center text-text-muted text-sm">
-      <p>© <span id="currentYear"></span> CeritaKu. Dibuat dengan <span class="text-red-500">❤️</span> untuk komunitas.</p>
-      <p class="mt-1">Platform statis • GitHub Pages • Firebase Auth</p>
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <p>&copy; 2024 CeritaKu. Dibuat dengan ❤️ untuk para penulis.</p>
+      <p class="text-text-muted text-sm mt-2">
+        <a href="#" class="hover:text-primary transition-colors">Tentang</a> •
+        <a href="#" class="hover:text-primary transition-colors">Privasi</a> •
+        <a href="#" class="hover:text-primary transition-colors">Kontak</a>
+      </p>
     </div>
   </footer>
 
-  <!-- Toast Notification Container -->
-  <div id="toastContainer" aria-live="assertive" aria-atomic="true"></div>
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container" role="region" aria-live="polite" aria-label="Notifikasi"></div>
 
-  <!-- Main Application JavaScript -->
+  <!-- Application Scripts -->
   <script src="app.js"></script>
-  
-  <!-- Inline script for config validation and year update -->
-  <script>
-    // Update copyright year
-    document.getElementById('currentYear').textContent = new Date().getFullYear();
-    
-    // Show config warning if FIREBASE_CONFIG is not defined
-    document.addEventListener('DOMContentLoaded', () => {
-      if (typeof FIREBASE_CONFIG === 'undefined') {
-        const warning = document.getElementById('configWarning');
-        if (warning) {
-          warning.classList.remove('hidden');
-          console.warn('⚠️ FIREBASE_CONFIG tidak ditemukan. Fitur auth akan menggunakan demo mode.');
-          console.info('💡 Solusi: Salin config.template.js → config.js dan isi dengan config Firebase Anda');
-        }
-      }
-    });
-  </script>
-  
+
 </body>
 </html>
