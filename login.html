@@ -37,8 +37,22 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   
-  <!-- 🔐 External Config - MUST be created locally from config.template.js -->
-  <script src="config.js"></script>
+  <!-- 🔐 External Config - Generated from environment variables or GitHub Secrets -->
+  <!-- For local dev: run `node generate-config.js` after setting env vars -->
+  <!-- For production: GitHub Actions will generate this automatically -->
+  <script src="config.js" onerror="handleConfigError()"></script>
+  
+  <!-- Fallback config handler if config.js fails to load -->
+  <script>
+    function handleConfigError() {
+      console.warn('⚠️ config.js tidak ditemukan atau gagal dimuat.');
+      console.warn('💡 Untuk development lokal, jalankan: node generate-config.js');
+      console.warn('💡 Pastikan environment variables sudah diset atau buat file .env');
+      
+      // Set demo mode flag
+      window.FIREBASE_CONFIG = null;
+    }
+  </script>
   
   <!-- Custom CSS -->
   <link rel="stylesheet" href="style.css"/>
