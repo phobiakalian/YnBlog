@@ -1,4 +1,7 @@
 ```
+# Dependencies
+node_modules/
+
 # Environment
 .env
 .env.local
@@ -8,6 +11,11 @@
 *.log
 *.tmp
 
-# Original rules preserved
-*.log
+# Editors
+.vscode/
+.idea/
+
+# Build artifacts
+build/
+dist/
 ```
