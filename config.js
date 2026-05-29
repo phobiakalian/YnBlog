@@ -31,13 +31,13 @@
 
 // 🔥 Firebase Configuration - GANTI DENGAN NILAI ASLI DARI FIREBASE CONSOLE
 const FIREBASE_CONFIG = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_APP_ID,
-  measurementId: process.env.FIREBASE_MEASUREMENT_ID // Optional
+  apiKey: "AIzaSyCq4iqaVMAoqSrvT7u3iOVml6Iu-Khee8c",
+  authDomain: "janjsa.firebaseapp.com",
+  projectId: "janjsa",
+  storageBucket: "janjsa.firebasestorage.app",
+  messagingSenderId: "946723375078",
+  appId: "1:946723375078:web:1db1220a80002b9a2df827",
+  measurementId: "G-4VN93EZCQ3"
 };
 
 // 👮 Admin Access Patterns - Untuk deteksi role admin
