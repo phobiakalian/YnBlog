@@ -63,6 +63,108 @@ jobs:
             echo "status=passed" >> $GITHUB_OUTPUT
           fi
       
+      - name: 🔐 Generate config.js from GitHub Secrets
+        run: |
+          echo "🔐 Generating config.js from secrets..."
+          
+          # Check if secrets are available
+          if [ -z "${{ secrets.FIREBASE_API_KEY }}" ]; then
+            echo "⚠️ WARNING: FIREBASE_API_KEY secret not set. Using demo mode."
+            cat > config.js << 'EOF'
+// Auto-generated config from GitHub Secrets
+// Demo mode enabled - no real Firebase config
+const FIREBASE_CONFIG = {
+  apiKey: "DEMO_MODE_NO_CONFIG",
+  authDomain: "demo.firebaseapp.com",
+  projectId: "demo-project",
+  storageBucket: "demo.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "1:000000000000:web:000000000000000000"
+};
+
+const ADMIN_PATTERNS = {
+  emailDomains: ["@demo.com"],
+  uids: [],
+  customClaimKey: "admin"
+};
+
+const APP_SETTINGS = {
+  appName: "CeritaKu",
+  defaultRedirect: { user: "index.html", admin: "admin.html" },
+  sessionDuration: 24 * 60 * 60 * 1000,
+  enableDemoMode: true,
+  demoCredentials: {
+    user: { email: "user@demo.com", displayName: "Pengguna Demo", photoURL: "" },
+    admin: { email: "admin@demo.com", displayName: "Admin Demo", photoURL: "" }
+  }
+};
+
+const APP_ENV = {
+  isLocalhost: false,
+  isGitHubPages: true,
+  get isProduction() { return !this.isLocalhost; }
+};
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { FIREBASE_CONFIG, ADMIN_PATTERNS, APP_SETTINGS, APP_ENV };
+}
+EOF
+            echo "✅ Demo config.js generated"
+          else
+            echo "✅ Using Firebase config from secrets"
+            cat > config.js << EOF
+// Auto-generated config from GitHub Secrets - DO NOT EDIT
+// Generated at: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+const FIREBASE_CONFIG = {
+  apiKey: "${{ secrets.FIREBASE_API_KEY }}",
+  authDomain: "${{ secrets.FIREBASE_AUTH_DOMAIN }}",
+  projectId: "${{ secrets.FIREBASE_PROJECT_ID }}",
+  storageBucket: "${{ secrets.FIREBASE_STORAGE_BUCKET }}",
+  messagingSenderId: "${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}",
+  appId: "${{ secrets.FIREBASE_APP_ID }}",
+  measurementId: "${{ secrets.FIREBASE_MEASUREMENT_ID }}"
+};
+
+const ADMIN_PATTERNS = {
+  emailDomains: ["${{ secrets.ADMIN_EMAIL_DOMAIN || '@admin.ceritaku.com' }}"],
+  uids: [],
+  customClaimKey: "admin"
+};
+
+const APP_SETTINGS = {
+  appName: "CeritaKu",
+  defaultRedirect: { user: "index.html", admin: "admin.html" },
+  sessionDuration: 24 * 60 * 60 * 1000,
+  enableDemoMode: false,
+  demoCredentials: {
+    user: { email: "user@demo.com", displayName: "Pengguna Demo", photoURL: "" },
+    admin: { email: "admin@demo.com", displayName: "Admin Demo", photoURL: "" }
+  }
+};
+
+const APP_ENV = {
+  isLocalhost: false,
+  isGitHubPages: true,
+  get isProduction() { return !this.isLocalhost; }
+};
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { FIREBASE_CONFIG, ADMIN_PATTERNS, APP_SETTINGS, APP_ENV };
+}
+EOF
+            echo "✅ Production config.js generated from secrets"
+          fi
+          
+          # Verify config.js was created
+          if [ -f "config.js" ]; then
+            echo "✅ config.js successfully generated"
+            echo "📄 File size: $(wc -c < config.js) bytes"
+          else
+            echo "❌ ERROR: Failed to generate config.js"
+            exit 1
+          fi
+      
       - name: 📋 List files being deployed
         run: |
           echo "📁 Files in repository:"
@@ -73,6 +175,9 @@ jobs:
           echo ""
           echo "✅ JSON data files:"
           find . -name "*.json" -type f -not -path './node_modules/*'
+          echo ""
+          echo "✅ Config files:"
+          ls -la config.* 2>/dev/null || echo "No config files found"
       
       - name: 🔍 Validate JSON files
         run: |
@@ -90,8 +195,6 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: '.'
-          # Note: config.js will be missing in deployment (as intended)
-          # Users must setup config.js separately for local development
 
   # Deploy job: Publish to GitHub Pages
   deploy:
