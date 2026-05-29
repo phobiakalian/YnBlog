@@ -1,0 +1,145 @@
+# .github/workflows/deploy.yml
+# Deploy static site to GitHub Pages with secure config handling
+
+name: 🚀 Deploy CeritaKu to GitHub Pages
+
+on:
+  # Trigger on push to main/master branch
+  push:
+    branches: [ "main", "master" ]
+    paths:
+      - '**.html'
+      - '**.css'
+      - '**.js'
+      - '!config.js'  # Exclude config.js from triggering deploy
+      - '**.json'
+      - 'assets/**'
+      - '.github/workflows/deploy.yml'
+  
+  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+# Security: Restrict permissions
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: "pages-${{ github.ref }}"
+  cancel-in-progress: true
+
+jobs:
+  # Build job: Validate and prepare files
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      config-status: ${{ steps.validate-config.outputs.status }}
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: 🔐 Validate config.js is NOT committed
+        id: validate-config
+        run: |
+          if git ls-files --error-unmatch config.js &>/dev/null; then
+            echo "❌ ERROR: config.js should NOT be committed to public repo!"
+            echo "status=failed" >> $GITHUB_OUTPUT
+            exit 1
+          else
+            echo "✅ config.js correctly excluded from repository"
+            echo "status=passed" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: 📋 List files being deployed
+        run: |
+          echo "📁 Files in repository:"
+          find . -type f -not -path './.git/*' -not -name '.gitignore' | sort
+          echo ""
+          echo "✅ HTML files:"
+          find . -name "*.html" -type f
+          echo ""
+          echo "✅ JSON data files:"
+          find . -name "*.json" -type f -not -path './node_modules/*'
+      
+      - name: 🔍 Validate JSON files
+        run: |
+          echo "Validating artikel.json..."
+          if [ -f "artikel.json" ]; then
+            python3 -m json.tool artikel.json > /dev/null && echo "✅ artikel.json is valid JSON"
+          else
+            echo "⚠️ artikel.json not found (will use default)"
+          fi
+      
+      - name: 📦 Setup Pages artifact
+        uses: actions/configure-pages@v4
+      
+      - name: 📤 Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+          # Note: config.js will be missing in deployment (as intended)
+          # Users must setup config.js separately for local development
+
+  # Deploy job: Publish to GitHub Pages
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    if: needs.build.outputs.config-status == 'passed'
+    
+    steps:
+      - name: 🚀 Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+      
+      - name: 📢 Deployment summary
+        run: |
+          echo "✅ Deployment successful!"
+          echo ""
+          echo "🌐 Live URL: ${{ steps.deployment.outputs.page_url }}"
+          echo ""
+          echo "📋 Next steps for users:"
+          echo "   1. Clone repo locally: git clone https://github.com/${{ github.repository }}.git"
+          echo "   2. Copy config: cp config.template.js config.js"
+          echo "   3. Edit config.js with your Firebase credentials"
+          echo "   4. Open index.html in browser (use live server)"
+          echo ""
+          echo "🔐 Security reminder:"
+          echo "   • Never commit config.js to public repos"
+          echo "   • Firebase config is public-by-design; secure via Firebase Rules"
+          echo "   • Use GitHub Secrets for sensitive automation tokens"
+      
+      - name: 🔄 Trigger cache invalidation (optional)
+        run: |
+          # Touch a file to help with CDN cache invalidation
+          echo "Deployed at $(date -u +%Y-%m-%dT%H:%M:%SZ)" > .deploy-timestamp
+          # Note: GitHub Pages handles caching automatically
+
+  # Post-deploy notification (optional)
+  notify:
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: always()
+    steps:
+      - name: 📧 Send deployment notification
+        if: github.event_name == 'push'
+        run: |
+          echo "Deployment completed for ${{ github.repository }}"
+          echo "Status: ${{ needs.deploy.result }}"
+          echo "URL: ${{ needs.deploy.outputs.page_url }}"
+          # Add webhook/Slack/Discord notification here if needed

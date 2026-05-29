@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Masuk - CeritaKu</title>
+  <meta name="description" content="Masuk ke akun CeritaKu Anda untuk membaca dan berbagi cerita"/>
+  <meta name="theme-color" content="#0f0f0f"/>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#6366f1',
+            'bg-dark': '#0f0f0f',
+            'bg-card': '#1a1a1a',
+            'bg-input': '#252525',
+            'text-main': '#f5f5f5',
+            'text-muted': '#a1a1aa',
+            'border-dark': '#333333'
+          },
+          borderRadius: {
+            'xl': '16px',
+            '2xl': '20px',
+            'full': '9999px'
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  
+  <!-- 🔐 External Config - MUST be created locally from config.template.js -->
+  <script src="config.js"></script>
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="bg-bg-dark text-text-main">
+  
+  <!-- Config Warning Banner -->
+  <div id="configWarning" class="config-warning hidden">
+    🔐 <span>Firebase config belum disetup! <a href="https://github.com/username/ceritaku-platform#-setup-firebase-configuration" target="_blank">Lihat panduan</a></span>
+  </div>
+
+  <div class="login-container">
+    <div class="login-card" role="main">
+      
+      <div class="login-header">
+        <a href="index.html" class="logo" style="justify-content: center; margin-bottom: 0.5rem;" aria-label="CeritaKu - Beranda">
+          <div class="logo-icon" aria-hidden="true">C</div>
+          <span>CeritaKu</span>
+        </a>
+        <h1 class="login-title">Selamat Datang</h1>
+        <p class="login-subtitle">Masuk untuk membaca dan berbagi cerita</p>
+      </div>
+
+      <!-- Email/Password Login Form (Demo Mode) -->
+      <form id="emailLoginForm" class="login-form" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input type="email" id="email" class="input-field" placeholder="nama@contoh.com" 
+                 autocomplete="email" required aria-required="true">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input type="password" id="password" class="input-field" placeholder="••••••••" 
+                 autocomplete="current-password" required aria-required="true">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Masuk dengan Email</button>
+      </form>
+
+      <div class="divider" role="separator" aria-label="atau">atau</div>
+
+      <!-- Firebase Auth Provider Buttons -->
+      <div class="login-options" role="group" aria-label="Metode login alternatif">
+        <button id="googleSignIn" class="firebase-btn" type="button" aria-label="Masuk dengan Google">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+               alt="Google" width="20" height="20" aria-hidden="true">
+          <span>Lanjutkan dengan Google</span>
+        </button>
+        <button id="githubSignIn" class="firebase-btn" type="button" aria-label="Masuk dengan GitHub">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+          <span>Lanjutkan dengan GitHub</span>
+        </button>
+      </div>
+
+      <!-- Demo Mode Section (for testing without Firebase config) -->
+      <div class="demo-section">
+        <p class="demo-label">🔧 Demo Mode: Pilih role untuk testing</p>
+        <div class="demo-buttons">
+          <button id="demoUser" class="btn btn-outline btn-block" type="button">
+            👤 Sebagai User
+          </button>
+          <button id="demoAdmin" class="btn btn-outline btn-block" type="button">
+            👮 Sebagai Admin
+          </button>
+        </div>
+      </div>
+
+      <!-- Error Message Display -->
+      <p id="loginError" class="form-error text-center mt-3 hidden" role="alert"></p>
+      
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" aria-live="assertive" aria-atomic="true"></div>
+
+  <!-- Application JavaScript -->
+  <script>
+    /**
+     * Login Page Logic
+     * Handles: Firebase Auth initialization, login flows, demo mode
+     */
+    
+    // 🔐 Config Validation
+    if (typeof FIREBASE_CONFIG === 'undefined') {
+      console.warn('⚠️ FIREBASE_CONFIG tidak ditemukan. Menggunakan demo mode.');
+      document.getElementById('configWarning')?.classList.remove('hidden');
+    }
+    
+    // Initialize Firebase (safe initialization)
+    let auth = null;
+    if (typeof firebase !== 'undefined' && typeof FIREBASE_CONFIG !== 'undefined') {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(FIREBASE_CONFIG);
+      }
+      auth = firebase.auth();
+    }
+    
+    // DOM Elements
+    const elements = {
+      emailForm: document.getElementById('emailLoginForm'),
+      googleBtn: document.getElementById('googleSignIn'),
+      githubBtn: document.getElementById('githubSignIn'),
+      demoUser: document.getElementById('demoUser'),
+      demoAdmin: document.getElementById('demoAdmin'),
+      error: document.getElementById('loginError'),
+      toastContainer: document.getElementById('toastContainer')
+    };
+    
+    // Helper: Show error message
+    function showError(message) {
+      if (elements.error) {
+        elements.error.textContent = message;
+        elements.error.classList.remove('hidden');
+        setTimeout(() => elements.error.classList.add('hidden'), 5000);
+      }
+    }
+    
+    // Helper: Show toast notification
+    function showToast(message, type = 'success') {
+      if (!elements.toastContainer) return;
+      
+      const toast = document.createElement('div');
+      toast.className = `toast ${type === 'error' ? 'error' : type === 'warning' ? 'warning' : ''}`;
+      toast.setAttribute('role', 'status');
+      toast.innerHTML = `
+        <span class="toast-icon" aria-hidden="true">${type === 'error' ? '⚠️' : type === 'warning' ? 'ℹ️' : '✅'}</span>
+        <span class="toast-message">${message}</span>
+      `;
+      elements.toastContainer.appendChild(toast);
+      
+      // Auto remove
+      setTimeout(() => {
+        toast.style.animation = 'fadeOut 0.3s ease forwards';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+    
+    // Helper: Check if user is admin based on config patterns
+    function checkIsAdmin(user) {
+      if (!user || typeof ADMIN_PATTERNS === 'undefined') return false;
+      
+      const { emailDomains = [], uids = [] } = ADMIN_PATTERNS;
+      
+      if (user.email && emailDomains.some(d => user.email.endsWith(d))) {
+        return true;
+      }
+      if (uids.includes(user.uid)) {
+        return true;
+      }
+      return false;
+    }
+    
+    // Helper: Handle successful login
+    function handleLogin(user, isAdmin = false) {
+      const authData = {
+        uid: user.uid || 'demo-' + Date.now(),
+        email: user.email || 'demo@example.com',
+        displayName: user.displayName || 'Pengguna',
+        photoURL: user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}&background=${isAdmin ? 'ec4899' : '6366f1'}&color=fff`,
+        isAdmin: isAdmin,
+        loginTime: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + (APP_SETTINGS?.sessionDuration || 24 * 60 * 60 * 1000)).toISOString()
+      };
+      
+      // Save to localStorage with encryption note (in production, use proper encryption)
+      localStorage.setItem('ceritaku_auth', JSON.stringify(authData));
+      
+      showToast(`Selamat datang, ${authData.displayName}! 🎉`);
+      
+      // Redirect based on role
+      setTimeout(() => {
+        const redirectUrl = isAdmin 
+          ? (APP_SETTINGS?.defaultRedirect?.admin || 'admin.html')
+          : (APP_SETTINGS?.defaultRedirect?.user || 'index.html');
+        window.location.href = redirectUrl;
+      }, 1000);
+    }
+    
+    // Email/Password Login Handler
+    if (elements.emailForm) {
+      elements.emailForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('email')?.value.trim();
+        const password = document.getElementById('password')?.value;
+        
+        if (!email || !password) {
+          showError('Email dan password wajib diisi');
+          return;
+        }
+        
+        try {
+          // Demo mode: simulate login without Firebase
+          if (typeof FIREBASE_CONFIG === 'undefined' || !auth) {
+            console.log('🔐 Demo mode: Simulating login');
+            const isDemoAdmin = email.toLowerCase().includes('admin');
+            handleLogin({
+              uid: 'demo-' + Date.now(),
+              email: email,
+              displayName: email.split('@')[0],
+              photoURL: `https://ui-avatars.com/api/?name=${email.split('@')[0]}&background=${isDemoAdmin ? 'ec4899' : '6366f1'}&color=fff`
+            }, isDemoAdmin);
+            return;
+          }
+          
+          // Production: Use Firebase Auth
+          // Uncomment below when Firebase is configured:
+          /*
+          const result = await auth.signInWithEmailAndPassword(email, password);
+          const isAdmin = checkIsAdmin(result.user);
+          handleLogin(result.user, isAdmin);
+          */
+          
+          // For now, show info about Firebase setup
+          showToast('🔧 Firebase belum dikonfigurasi. Gunakan Demo Mode atau setup config.js', 'warning');
+          
+        } catch (error) {
+          console.error('Login error:', error);
+          let message = 'Login gagal';
+          
+          if (error.code === 'auth/user-not-found') {
+            message = 'Akun tidak ditemukan';
+          } else if (error.code === 'auth/wrong-password') {
+            message = 'Password salah';
+          } else if (error.code === 'auth/invalid-email') {
+            message = 'Format email tidak valid';
+          } else if (error.message) {
+            message = error.message;
+          }
+          
+          showError(message);
+          showToast(message, 'error');
+        }
+      });
+    }
+    
+    // Google Sign In Handler
+    if (elements.googleBtn) {
+      elements.googleBtn.addEventListener('click', async () => {
+        try {
+          if (!auth) {
+            showToast('🔧 Firebase belum dikonfigurasi. Gunakan Demo Mode', 'warning');
+            return;
+          }
+          
+          const provider = new firebase.auth.GoogleAuthProvider();
+          provider.setCustomParameters({ prompt: 'select_account' });
+          
+          const result = await auth.signInWithPopup(provider);
+          const isAdmin = checkIsAdmin(result.user);
+          handleLogin(result.user, isAdmin);
+          
+        } catch (error) {
+          console.error('Google sign-in error:', error);
+          
+          if (error.code === 'auth/popup-closed-by-user') {
+            showToast('Login dibatalkan', 'warning');
+          } else if (error.code === 'auth/popup-blocked') {
+            showError('Popup diblokir browser. Izinkan popup untuk login.');
+          } else {
+            showError('Login Google gagal: ' + (error.message || 'Unknown error'));
+            showToast('Login Google gagal', 'error');
+          }
+        }
+      });
+    }
+    
+    // GitHub Sign In Handler
+    if (elements.githubBtn) {
+      elements.githubBtn.addEventListener('click', async () => {
+        try {
+          if (!auth) {
+            showToast('🔧 Firebase belum dikonfigurasi. Gunakan Demo Mode', 'warning');
+            return;
+          }
+          
+          const provider = new firebase.auth.GithubAuthProvider();
+          provider.addScope('user:email');
+          
+          const result = await auth.signInWithPopup(provider);
+          const isAdmin = checkIsAdmin(result.user);
+          handleLogin(result.user, isAdmin);
+          
+        } catch (error) {
+          console.error('GitHub sign-in error:', error);
+          
+          if (error.code === 'auth/popup-closed-by-user') {
+            showToast('Login dibatalkan', 'warning');
+          } else if (error.code === 'auth/popup-blocked') {
+            showError('Popup diblokir browser. Izinkan popup untuk login.');
+          } else {
+            showError('Login GitHub gagal: ' + (error.message || 'Unknown error'));
+            showToast('Login GitHub gagal', 'error');
+          }
+        }
+      });
+    }
+    
+    // Demo Mode Handlers
+    if (elements.demoUser) {
+      elements.demoUser.addEventListener('click', () => {
+        if (APP_SETTINGS?.enableDemoMode !== false) {
+          const demo = APP_SETTINGS?.demoCredentials?.user || {
+            email: 'user@demo.com',
+            displayName: 'Pengguna Demo',
+            photoURL: 'https://ui-avatars.com/api/?name=Pengguna+Demo&background=6366f1&color=fff'
+          };
+          handleLogin(demo, false);
+        } else {
+          showToast('Demo mode dinonaktifkan', 'warning');
+        }
+      });
+    }
+    
+    if (elements.demoAdmin) {
+      elements.demoAdmin.addEventListener('click', () => {
+        if (APP_SETTINGS?.enableDemoMode !== false) {
+          const demo = APP_SETTINGS?.demoCredentials?.admin || {
+            email: 'admin@demo.com',
+            displayName: 'Admin Demo',
+            photoURL: 'https://ui-avatars.com/api/?name=Admin+Demo&background=ec4899&color=fff'
+          };
+          handleLogin(demo, true);
+        } else {
+          showToast('Demo mode dinonaktifkan', 'warning');
+        }
+      });
+    }
+    
+    // Check existing session on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedAuth = localStorage.getItem('ceritaku_auth');
+      
+      if (savedAuth) {
+        try {
+          const authData = JSON.parse(savedAuth);
+          const now = new Date();
+          const expiresAt = new Date(authData.expiresAt);
+          
+          // Check if session is still valid
+          if (now < expiresAt) {
+            console.log('✅ Valid session found, redirecting...');
+            const redirectUrl = authData.isAdmin 
+              ? (APP_SETTINGS?.defaultRedirect?.admin || 'admin.html')
+              : (APP_SETTINGS?.defaultRedirect?.user || 'index.html');
+            window.location.href = redirectUrl;
+          } else {
+            console.log('⏰ Session expired, clearing...');
+            localStorage.removeItem('ceritaku_auth');
+          }
+        } catch (e) {
+          console.error('Error parsing auth data:', e);
+          localStorage.removeItem('ceritaku_auth');
+        }
+      }
+      
+      // Firebase auth state listener (if available)
+      if (auth) {
+        auth.onAuthStateChanged(user => {
+          if (user) {
+            const isAdmin = checkIsAdmin(user);
+            // Optional: auto-save to localStorage for static compatibility
+            // handleLogin(user, isAdmin);
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

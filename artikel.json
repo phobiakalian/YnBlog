@@ -1,0 +1,55 @@
+{
+  "articles": [
+    {
+      "id": "art-001",
+      "title": "Memulai Perjalanan Coding di 2024",
+      "excerpt": "Panduan lengkap untuk developer pemula yang ingin memulai karir di bidang teknologi.",
+      "content": "<p>Tahun 2024 menjadi momentum tepat untuk memulai perjalanan coding Anda. Dengan banyaknya resource gratis seperti freeCodeCamp, The Odin Project, dan dokumentasi resmi, belajar programming tidak pernah semudah ini.</p><p>Mulai dari HTML, CSS, JavaScript, lalu lanjut ke framework seperti React atau Vue. Konsistensi adalah kunci utama.</p><h3>Langkah Pertama</h3><ol><li>Pilih bahasa pemrograman yang sesuai minat</li><li>Ikuti tutorial interaktif</li><li>Bangun proyek kecil untuk portofolio</li><li>Bergabung dengan komunitas developer</li></ol><p>Ingat: Setiap expert pernah menjadi pemula. Yang membedakan adalah konsistensi untuk terus belajar.</p>",
+      "author": "Andi Developer",
+      "authorAvatar": "https://ui-avatars.com/api/?name=Andi+Developer&background=6366f1&color=fff",
+      "category": "tutorial",
+      "tags": ["coding", "pemula", "web-development", "karir"],
+      "imageUrl": "https://picsum.photos/seed/tech-coding-2024/800/400",
+      "publishedAt": "2024-01-15T08:30:00Z",
+      "updatedAt": "2024-01-15T08:30:00Z",
+      "views": 1247,
+      "status": "published"
+    },
+    {
+      "id": "art-002",
+      "title": "Tips Produktif Kerja Remote ala Developer",
+      "excerpt": "Strategi menjaga fokus dan produktivitas saat bekerja dari rumah sebagai software engineer.",
+      "content": "<p>Kerja remote memberikan fleksibilitas, tapi juga tantangan tersendiri. Berikut tips dari pengalaman pribadi:</p><ul><li><strong>Tetapkan jam kerja yang jelas:</strong> Buat batas antara work time dan personal time</li><li><strong>Gunakan teknik Pomodoro:</strong> 25 menit fokus, 5 menit istirahat</li><li><strong>Buat workspace khusus:</strong> Area kerja yang nyaman dan minim distraksi</li><li><strong>Komunikasi intens dengan tim:</strong> Update progress secara rutin via Slack/Discord</li></ul><blockquote>\"Produktivitas bukan tentang bekerja lebih lama, tapi bekerja lebih cerdas.\"</blockquote><p>Jangan lupa untuk tetap menjaga kesehatan mental dan fisik. Work-life balance adalah investasi jangka panjang.</p>",
+      "author": "Siti Tech",
+      "authorAvatar": "https://ui-avatars.com/api/?name=Siti+Tech&background=ec4899&color=fff",
+      "category": "lifestyle",
+      "tags": ["remote-work", "produktivitas", "tips", "work-life-balance"],
+      "imageUrl": "https://picsum.photos/seed/remote-work-setup/800/400",
+      "publishedAt": "2024-01-14T14:20:00Z",
+      "updatedAt": "2024-01-14T14:20:00Z",
+      "views": 892,
+      "status": "published"
+    },
+    {
+      "id": "art-003",
+      "title": "Mengenal GitHub Actions untuk Automation",
+      "excerpt": "Pelajari cara mengotomatiskan workflow development Anda dengan GitHub Actions.",
+      "content": "<p>GitHub Actions adalah fitur powerful dari GitHub yang memungkinkan Anda mengotomatiskan berbagai tugas dalam workflow development.</p><h3>Use Cases Populer</h3><ul><li>✅ Auto-deploy ke GitHub Pages/Vercel/Netlify</li><li>✅ Run testing otomatis saat push code</li><li>✅ Build dan publish Docker images</li><li>✅ Send notification ke Slack/Discord</li></ul><h3>Contoh Workflow Sederhana</h3><pre><code>name: Deploy Site\non: [push]\njobs:\n  deploy:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v3\n      - name: Deploy\n        run: echo \"Deploying...\"</code></pre><p>Mulai dari workflow sederhana, lalu kembangkan sesuai kebutuhan proyek Anda. Dokumentasi resmi GitHub Actions sangat lengkap dan mudah dipahami.</p>",
+      "author": "Budi Automation",
+      "authorAvatar": "https://ui-avatars.com/api/?name=Budi+Automation&background=22c55e&color=fff",
+      "category": "tutorial",
+      "tags": ["github", "automation", "ci-cd", "devops"],
+      "imageUrl": "https://picsum.photos/seed/github-actions/800/400",
+      "publishedAt": "2024-01-13T10:15:00Z",
+      "updatedAt": "2024-01-13T10:15:00Z",
+      "views": 1543,
+      "status": "published"
+    }
+  ],
+  "meta": {
+    "version": "1.0.0",
+    "lastUpdated": "2024-01-15T08:30:00Z",
+    "totalArticles": 3,
+    "categories": ["tutorial", "berita", "lifestyle", "opini", "lainnya"]
+  }
+}
